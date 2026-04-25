@@ -1,0 +1,10 @@
+bin/
+bin-int/
+.cache/
+premake
+.clangd
+.clang-format
+*.make
+Makefile
+compile_commands.json
+
