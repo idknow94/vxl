@@ -7,4 +7,4 @@ premake
 *.make
 Makefile
 compile_commands.json
-
+run.sh

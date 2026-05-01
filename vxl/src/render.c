@@ -40,9 +40,9 @@ void vxlRender() {
     float oy = camera->y;
     float oz = camera->z;
 
-    float yawR   = camera->yaw   * M_PI / 180.0f;
+    float yawR = camera->yaw * M_PI / 180.0f;
     float pitchR = camera->pitch * M_PI / 180.0f;
-    float cosYaw   = cosf(yawR),   sinYaw   = sinf(yawR);
+    float cosYaw = cosf(yawR), sinYaw = sinf(yawR);
     float cosPitch = cosf(pitchR), sinPitch = sinf(pitchR);
 
     int32_t vx, vy, vz;
@@ -52,10 +52,9 @@ void vxlRender() {
             float ndc_x = (2.0f * x / frame->width) - 1.0f;
             float ndc_y = (2.0f * y / frame->height) - 1.0f;
 
-            vx = (int32_t)ox;
-            vy = (int32_t)oy;
-            vz = (int32_t)oz;
-
+            vx = (int32_t)floorf(ox);
+            vy = (int32_t)floorf(oy);
+            vz = (int32_t)floorf(oz);
             float dx, dy, dz;
             if (fisheye) {
                 dx = tanf(ndc_x * camera->fov * 0.5f * M_PI / 180.0f);
@@ -64,17 +63,16 @@ void vxlRender() {
                 dx = ndc_x * aspect * fov;
                 dy = ndc_y * fov;
             }
-            dz = 1.0f;
-
-            float len = sqrtf(dx * dx + dy * dy + dz * dz);
-            dx /= len;
-            dy /= len;
-            dz /= len;
+            dz = -1.0f;
 
             float rx = dx * cosYaw + dz * sinYaw;
-            float ry = dx * sinYaw * sinPitch + dy * cosPitch - dz * cosYaw * sinPitch;
-            float rz = -dx * sinYaw * cosPitch + dy * sinPitch + dz * cosYaw * cosPitch;
-            dx = rx; dy = ry; dz = rz;
+            float ry =
+                dx * sinYaw * sinPitch + dy * cosPitch - dz * cosYaw * sinPitch;
+            float rz = -dx * sinYaw * cosPitch + dy * sinPitch +
+                       dz * cosYaw * cosPitch;
+            dx = rx;
+            dy = ry;
+            dz = rz;
 
             int step_x = dx > 0 ? 1 : -1;
             int step_y = dy > 0 ? 1 : -1;
@@ -89,11 +87,9 @@ void vxlRender() {
             float t_max_z = (dz > 0 ? (vz + 1 - oz) : (oz - vz)) * t_dz;
 
             size_t idx = (x + y * frame->width) * 3;
-            setColor(idx, 0, 0, 255);
-
-            while (vx < (int32_t)voxels->xSize && vx >= 0 &&
-                   vy < (int32_t)voxels->ySize && vy >= 0 &&
-                   vz < (int32_t)voxels->zSize && vz >= 0) {
+            setColor(idx, 25, 25, 255);
+            float maxSteps = 64;
+            while (maxSteps-- > 0) {
                 if (t_max_x < t_max_y && t_max_x < t_max_z) {
                     vx += step_x;
                     t_max_x += t_dx;
@@ -104,18 +100,22 @@ void vxlRender() {
                     vz += step_z;
                     t_max_z += t_dz;
                 }
-
-                if (vxlIsColliding(vx, vy, vz)) {
-                    VxlVoxelType type = vxlGetVoxel((uint32_t)vx, (uint32_t)vy, (uint32_t)vz);
-                    switch (type) {
-                    case VXL_VOXEL_GRASS:
-                        setColor(idx, 0, 255, 0);
-                        break;
-                    default:
-                        break;
-                    }
+                VxlVoxelType type =
+                    vxlGetVoxel((uint32_t)vx, (uint32_t)vy, (uint32_t)vz);
+                if (type == VXL_VOXEL_AIR) {continue;}
+                float sx = vx - ox;
+                float sy = vy - oy;
+                float sz = vz - oz;
+                float dist = sx * sx + sy * sy + sz * sz;
+                switch (type) {
+                case VXL_VOXEL_GRASS:
+                    setColor(idx, 0, (uint8_t)(255.0f / (1.0f + dist * 0.1f)),
+                             0);
+                    break;
+                default:
                     break;
                 }
+                break;
             }
         }
     }

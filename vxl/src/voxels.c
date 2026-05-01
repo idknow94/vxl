@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "vxl.h"
 #include <stdlib.h>
+#include <math.h>
 
 #define VXL_VOXELS_IDX(x, y, z)                                                \
     ((y) * (voxels->zSize * voxels->xSize) + (z) * voxels->xSize + (x))
@@ -27,9 +28,9 @@ VxlVoxelType vxlGetVoxel(uint32_t x, uint32_t y, uint32_t z) {
 bool vxlIsColliding(float x, float y, float z) {
     if (x < 0 || y < 0 || z < 0)
         return false;
-    uint32_t ix = (uint32_t)x;
-    uint32_t iy = (uint32_t)y;
-    uint32_t iz = (uint32_t)z;
+    int32_t ix = (int32_t)floorf(x);
+    int32_t iy = (int32_t)floorf(y);
+    int32_t iz = (int32_t)floorf(z);
     if (ix >= voxels->xSize || iy >= voxels->ySize || iz >= voxels->zSize)
         return false;
     return voxels->voxels[VXL_VOXELS_IDX(ix, iy, iz)] != VXL_VOXEL_AIR;
