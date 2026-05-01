@@ -28,16 +28,15 @@ typedef struct VxlVoxels {
     VxlVoxelType *voxels;
 } VxlVoxels;
 
-static VxlVoxels *s_voxels;
-static VxlFrame *s_frame;
-static VxlCamera *s_camera;
 
 bool vxlIsConfigured();
 VxlVoxels vxlCreateVoxels(uint32_t xSize, uint32_t ySize, uint32_t zSize);
 VxlFrame vxlCreateFrame(uint32_t width, uint32_t height);
-void vxlSetVoxels(VxlVoxels *voxels);
-void vxlSetFrame(VxlFrame *frame);
-void vxlSetCamera(VxlCamera *camera);
+VxlCamera vxlCreateCamera(float x, float y, float z, float pitch, float yaw,
+                          float fov, bool fisheye);
+void vxlSetVoxels(VxlVoxels *v);
+void vxlSetFrame(VxlFrame *f);
+void vxlSetCamera(VxlCamera *c);
 VxlVoxelType vxlGetVoxel(uint32_t x, uint32_t y, uint32_t z);
 bool vxlIsColliding(float x, float y, float z);
 void vxlUpdate();

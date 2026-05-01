@@ -1,5 +1,7 @@
+#include "globals.h"
 #include "vxl.h"
 #include <stdbool.h>
+#include <stdlib.h>
 bool vxlIsConfigured() {
-    return s_frame && s_camera && s_voxels;
+    return frame != NULL && camera != NULL && voxels != NULL;
 }
